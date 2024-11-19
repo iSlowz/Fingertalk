@@ -45,6 +45,7 @@ def get_transforms(num_classes, only_one=None):
 
 
 def get_loaders(dataset_path, batch_size=16, split_ratios=(0.75, 0.10, 0.15)):
+    print("Loading dataset...")
     num_classes = len(os.listdir(dataset_path))
 
     train_transform, test_transform, target_transform = get_transforms(num_classes)
@@ -93,6 +94,7 @@ def train_model(model, train_loader, val_loader, num_epochs=10, learning_rate=0.
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
     print(f"Device: {device}")
+    print(torch.cuda.get_device_name(torch.cuda.current_device()))
     print('Start training...')
 
     loss_function = nn.CrossEntropyLoss()
