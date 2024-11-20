@@ -234,5 +234,5 @@ def ResNet50_transfer_learning(dataset_path, num_epochs=30, learning_rate=0.01, 
     model = setup_the_model(num_classes)
     train_model(model, train_loader, val_loader, num_epochs, learning_rate)
     test_model(model, test_loader, target_names=list(class_to_index.keys()))
-    save_model(model, 'outputs/model_little_dataset.pth')
+    save_model(model, 'outputs/model.pth')
     save_index_to_class(class_to_index)
