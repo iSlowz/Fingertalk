@@ -75,8 +75,8 @@ if __name__ == '__main__':
         if results.multi_hand_landmarks:
             displayed_frame, boundingbox = draw(results, displayed_frame)
 
-        # show the hand detected in a separate window every 2 seconds
-        if cv2.getTickCount() - start_time > 2 * cv2.getTickFrequency():
+        # show the hand detected in a separate window every 1 seconds
+        if cv2.getTickCount() - start_time > 1 * cv2.getTickFrequency():
             if results.multi_hand_landmarks:
                 x1, y1, x2, y2 = boundingbox
                 hand = frame[y1:y2, x1:x2]
