@@ -1,4 +1,3 @@
-import io
 import os
 from PIL import Image
 import pandas as pd
