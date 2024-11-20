@@ -1,5 +1,7 @@
 import cv2
 import mediapipe as mp
+from PIL import Image
+from aprentissage.test_model import predict_class
 
 
 def get_boundingbox(landmarks):
@@ -78,9 +80,11 @@ if __name__ == '__main__':
             if results.multi_hand_landmarks:
                 x1, y1, x2, y2 = boundingbox
                 hand = frame[y1:y2, x1:x2]
-                # @Maxime tu peux extraire la main ici
                 if hand.shape[0] and hand.shape[1]:
-                    cv2.imshow("Hand", cv2.resize(hand, (400, 400)))
+                    PIL_hand = Image.fromarray(cv2.cvtColor(hand, cv2.COLOR_BGR2RGB))
+                    classe = predict_class(PIL_hand)
+                    cv2.putText(hand, classe, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
+                    cv2.imshow('hand', cv2.resize(hand, (400, 400)))
             start_time = cv2.getTickCount()
 
         cv2.imshow("Hand Detection (press q to exit)", displayed_frame)
