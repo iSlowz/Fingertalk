@@ -1,5 +1,8 @@
+import io
 import os
+from PIL import Image
 import pandas as pd
+from rembg import remove
 from tqdm import tqdm
 import torch
 from torchvision.datasets import ImageFolder
@@ -15,8 +18,14 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
+def rm_bg(img: Image):
+    img_without_bg = remove(img).convert('RGB')
+    return img_without_bg
+
+
 def get_transforms(num_classes, only_one=None):
     train_transform = transforms.Compose([
+        transforms.Lambda(lambda x: rm_bg(x)),
         transforms.Resize((232, 232)),
         transforms.RandomResizedCrop(224),
         transforms.RandomHorizontalFlip(),
@@ -26,14 +35,15 @@ def get_transforms(num_classes, only_one=None):
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
     test_transform = transforms.Compose([
+        transforms.Lambda(lambda x: rm_bg(x)),
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
     target_transform = transforms.Compose([transforms.Lambda(lambda y:
-        torch.zeros(num_classes, dtype=torch.float)
-        .scatter_(0, torch.tensor(y), value=1)
-    )])
+                                                             torch.zeros(num_classes, dtype=torch.float)
+                                                             .scatter_(0, torch.tensor(y), value=1)
+                                                             )])
     if only_one is None:
         return train_transform, test_transform, target_transform
     elif only_one == 'train':
@@ -177,7 +187,8 @@ def test_model(model, test_loader, target_names):
     accuracy = accuracy_score(all_labels.cpu(), all_predictions.cpu())
     kappa = cohen_kappa_score(all_labels.cpu(), all_predictions.cpu())
     labels = list(range(0, len(target_names)))
-    report_dict = classification_report(all_labels.cpu(), all_predictions.cpu(), labels=labels, target_names=target_names, output_dict=True)
+    report_dict = classification_report(all_labels.cpu(), all_predictions.cpu(), labels=labels,
+                                        target_names=target_names, output_dict=True)
 
     # print with 3 decimal places
     print("\nTest Report")
