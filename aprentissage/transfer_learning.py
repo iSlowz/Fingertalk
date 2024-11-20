@@ -225,7 +225,7 @@ def save_model(model, path):
 def load_model(weights_path, num_classes):
     model = models.resnet50()
     model.fc = nn.Linear(model.fc.in_features, num_classes)
-    model.load_state_dict(torch.load(weights_path))
+    model.load_state_dict(torch.load(weights_path, map_location=torch.device('cpu')))
     return model
 
 
