@@ -1,4 +1,4 @@
-from transfer_learning import ResNet50_transfer_learning
+from aprentissage.transfer_learning import ResNet50_transfer_learning
 
 dataset_path = '../ASL_dataset/asl_alphabet_train/asl_alphabet_train'
 ResNet50_transfer_learning(

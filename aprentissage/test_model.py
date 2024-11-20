@@ -1,11 +1,11 @@
 import os
 from PIL import Image
 import torch
-from transfer_learning import load_model, load_index_to_class, get_transforms
+from aprentissage.transfer_learning import load_model, load_index_to_class, get_transforms
 
-index_to_class = load_index_to_class('outputs/index_to_class.csv')
+index_to_class = load_index_to_class(os.path.join((os.path.dirname(__file__)), 'outputs/index_to_class.csv'))
 num_classes = len(index_to_class)
-model = load_model('outputs/model_little_dataset.pth', num_classes)
+model = load_model(os.path.join(os.path.dirname(__file__), 'outputs/model_accuracy98.pth'), num_classes)
 test_transform = get_transforms(num_classes, 'test')
 
 test_set = '../ASL_dataset/asl_alphabet_test/asl_alphabet_test'
