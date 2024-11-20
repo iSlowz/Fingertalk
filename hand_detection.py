@@ -82,8 +82,8 @@ if __name__ == '__main__':
                 hand = frame[y1:y2, x1:x2]
                 if hand.shape[0] and hand.shape[1]:
                     PIL_hand = Image.fromarray(cv2.cvtColor(hand, cv2.COLOR_BGR2RGB))
-                    classe = predict_class(PIL_hand)
-                    cv2.putText(hand, classe, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
+                    classe, conf = predict_class(PIL_hand)
+                    cv2.putText(hand, f"{classe} {round(100*conf, 1)}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
                     cv2.imshow('hand', cv2.resize(hand, (400, 400)))
             start_time = cv2.getTickCount()
 

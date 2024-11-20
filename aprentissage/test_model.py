@@ -1,6 +1,7 @@
 import os
 from PIL import Image
 import torch
+from torch.nn.functional import softmax
 from aprentissage.transfer_learning import load_model, load_index_to_class, get_transforms
 
 index_to_class = load_index_to_class(os.path.join((os.path.dirname(__file__)), 'outputs/index_to_class.csv'))
@@ -14,9 +15,11 @@ def predict_class(image):
     model.eval()
     with torch.no_grad():
         output = model(image)
-        pred = output.argmax(1).item()
+        probas = softmax(output, dim=1)
+        pred = probas.argmax(1).item()
+        conf = probas[0][pred].item()
     classe = index_to_class[pred]
-    return classe
+    return classe, conf
 
 
 def testset_predictions(test_set='../ASL_dataset/asl_alphabet_test/asl_alphabet_test'):
@@ -24,15 +27,17 @@ def testset_predictions(test_set='../ASL_dataset/asl_alphabet_test/asl_alphabet_
         true_classe = img_name.split('_')[0]
         img_path = os.path.join(test_set, img_name)
         img = Image.open(img_path)
-        classe = predict_class(img)
+        classe, conf = predict_class(img)
+        conf = round(conf * 100, 1)
 
         GREEN = '\033[92m'
         RED = '\033[91m'
         END = '\033[0m'
         if true_classe == classe:
-            print(f"{GREEN}True classe: {true_classe}, Predicted classe: {classe}{END}")
+            color = GREEN
         else:
-            print(f"{RED}True classe: {true_classe}, Predicted classe: {classe}{END}")
+            color = RED
+        print(f"{color}True classe: {true_classe}, Predicted classe: {classe}, confidence: {conf}%{END}")
 
 
 if __name__ == '__main__':
