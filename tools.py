@@ -95,4 +95,10 @@ def draw_results(results, frame):
     x1, y1, x2, y2 = get_boundingbox(hand_landmarks, frame)
     cv2.rectangle(frame, (x1, y1), (x2, y2), (150, 0, 0), 2)
 
+    # Calculate the position for the label's background rectangle
+    label_height = 40  # Height of the blue rectangle for the label
+    label_y1 = y1 - label_height if y1 - label_height > 0 else 0
+    label_y2 = y1
+    cv2.rectangle(frame, (x1, label_y1), (x2, label_y2), (255, 0, 0), -1)
+
     return frame, (x1, y1, x2, y2)

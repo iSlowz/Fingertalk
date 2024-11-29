@@ -1,13 +1,39 @@
 import pickle
-import json
 import cv2
 from tools import hands_detector, draw_results, transform_for_RFC
 
 
 if __name__ == '__main__':
     model = pickle.load(open('random_forest_model.pkl', 'rb'))
-    idx_to_label = json.load(open('idx_2_label.json', 'r'))
-    idx_to_label = {int(k): v for k, v in idx_to_label.items()}
+    idx_to_label = {
+        0: "A",
+        1: "B",
+        2: "C",
+        3: "D",
+        4: "E",
+        5: "F",
+        6: "G",
+        7: "H",
+        8: "I",
+        9: "J",
+        10: "K",
+        11: "L",
+        12: "M",
+        13: "N",
+        14: "O",
+        15: "P",
+        16: "Q",
+        17: "R",
+        18: "S",
+        19: "Space",
+        20: "T",
+        21: "U",
+        22: "V",
+        23: "W",
+        24: "X",
+        25: "Y",
+        26: "Z"
+    }
 
     fps = 30
     cap = cv2.VideoCapture(0)
@@ -37,9 +63,11 @@ if __name__ == '__main__':
             conf = model.predict_proba([sample])[0][model.classes_ == prediction][0]
             conf = round(conf * 100, 1)
             label = idx_to_label[prediction]
-            cv2.putText(displayed_frame, f'{label} : {conf}',
-                        (boundingbox[0], boundingbox[1] - 30), cv2.FONT_HERSHEY_SIMPLEX,
-                        1, (150, 0, 0), 1)
+            text = f'{label} : {conf}'
+            # draw the text on the frame, with a white color and a blue background
+            cv2.putText(displayed_frame, text, (boundingbox[0]+10, boundingbox[1]-10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
 
         cv2.imshow("Hand Detection (press q to exit)", displayed_frame)
 
