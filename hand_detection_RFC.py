@@ -1,5 +1,6 @@
 import pickle
 import cv2
+from collections import deque
 from tools import hands_detector, draw_results, transform_for_RFC
 
 
@@ -34,8 +35,11 @@ if __name__ == '__main__':
         25: "Y",
         26: "Z"
     }
+    fps = 15
+    len_deque = max(5, int(1.5*fps))
+    last_letters = deque(maxlen=len_deque)
+    last_confs = deque(maxlen=len_deque)
 
-    fps = 30
     cap = cv2.VideoCapture(0)
     num_frame_skip = max(1, int(int(cap.get(cv2.CAP_PROP_FPS)) / fps))
     prediction = None
@@ -44,9 +48,6 @@ if __name__ == '__main__':
             ret, frame = cap.read()
             if not ret:
                 break  # Exit if the video ends
-
-        if not ret:
-            break
 
         # Flip frame for natural interaction
         frame = cv2.flip(frame, 1)
@@ -59,15 +60,22 @@ if __name__ == '__main__':
             displayed_frame, boundingbox = draw_results(results, displayed_frame)
             landmarks = results.multi_hand_landmarks[0].landmark
             sample = transform_for_RFC(landmarks)
+
             prediction = model.predict([sample])[0]
             conf = model.predict_proba([sample])[0][model.classes_ == prediction][0]
-            conf = round(conf * 100, 1)
             label = idx_to_label[prediction]
-            text = f'{label} : {conf}'
-            # draw the text on the frame, with a white color and a blue background
+
+            last_letters.append(label)
+            last_confs.append(conf)
+            if len(set(last_letters)) == 1 and len(last_letters) == last_letters.maxlen:
+                avg_conf = sum(last_confs) / len(last_confs)
+                if avg_conf > 0.5:
+                    print(label, avg_conf)
+                    last_letters.clear()
+
+            text = f'{label} : {round(conf * 100, 1)}'
             cv2.putText(displayed_frame, text, (boundingbox[0]+10, boundingbox[1]-10),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-
 
         cv2.imshow("Hand Detection (press q to exit)", displayed_frame)
 
@@ -75,8 +83,3 @@ if __name__ == '__main__':
             cap.release()
             cv2.destroyAllWindows()
             break
-
-        start_tick = cv2.getTickCount()
-
-    cap.release()
-    cv2.destroyAllWindows()
